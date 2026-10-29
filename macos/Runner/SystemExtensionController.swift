@@ -300,13 +300,13 @@ final class MacOSVPNController: NSObject, FlutterStreamHandler {
             let old = (manager.protocolConfiguration as? NETunnelProviderProtocol)?.providerConfiguration
             let proto = NETunnelProviderProtocol()
             proto.providerBundleIdentifier = activation.extensionIdentifier
-            proto.serverAddress = "Hiddify"
+            proto.serverAddress = "Rebecca"
             proto.disconnectOnSleep = false
             let secret = try old?["secret"] as? String ?? randomSecret()
             proto.providerConfiguration = [
                 "configContent": arguments["configContent"]!,
                 "settingsJSON": arguments["settingsJSON"]!,
-                "configName": arguments["configName"] as? String ?? "Hiddify",
+                "configName": arguments["configName"] as? String ?? "Rebecca",
                 "disableMemoryLimit": arguments["disableMemoryLimit"] as? Bool ?? false,
                 "proxyOnly": arguments["proxyOnly"] as? Bool ?? false,
                 "port": old?["port"] as? Int ?? Int(arc4random_uniform(40000)) + 20000,

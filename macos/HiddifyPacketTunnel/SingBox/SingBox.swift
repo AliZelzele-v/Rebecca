@@ -29,7 +29,7 @@ final class SingBox {
                 throw tunnelError("The saved VPN configuration is incomplete. Connect from Hiddify first.")
             }
             self.configContent = content
-            self.configName = values["configName"] as? String ?? "Hiddify"
+            self.configName = values["configName"] as? String ?? "Rebecca"
             self.settingsJSON = settings
             self.secret = secret
             self.port = port.int32Value
