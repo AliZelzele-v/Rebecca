@@ -16,7 +16,6 @@ import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/features/common/general_pref_tiles.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/settings/widget/preference_tile.dart';
-import 'package:hiddify/gen/assets.gen.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -27,7 +26,8 @@ class IntroPage extends HookConsumerWidget with PresLogger {
 
   // for focus management
   KeyEventResult _handleKeyEvent(KeyEvent event, String key) {
-    if (KeyboardConst.select.contains(event.logicalKey) && event is KeyUpEvent) {
+    if (KeyboardConst.select.contains(event.logicalKey) &&
+        event is KeyUpEvent) {
       UriUtils.tryLaunch(Uri.parse(IntroConst.url[key]!));
       return KeyEventResult.handled;
     }
@@ -42,7 +42,9 @@ class IntroPage extends HookConsumerWidget with PresLogger {
     final isStarting = useState(false);
 
     if (!locationInfoLoaded) {
-      autoSelectRegion(ref).then((value) => loggy.debug("Auto Region selection finished!"));
+      autoSelectRegion(
+        ref,
+      ).then((value) => loggy.debug("Auto Region selection finished!"));
       locationInfoLoaded = true;
     }
 
@@ -61,7 +63,9 @@ class IntroPage extends HookConsumerWidget with PresLogger {
     };
     useEffect(() {
       for (final entry in focusNodes.entries) {
-        entry.value.addListener(() => focusStates[entry.key]!.value = entry.value.hasPrimaryFocus);
+        entry.value.addListener(
+          () => focusStates[entry.key]!.value = entry.value.hasPrimaryFocus,
+        );
       }
       return null;
     }, []);
@@ -82,7 +86,11 @@ class IntroPage extends HookConsumerWidget with PresLogger {
                           ? IntroConst.maxwidth
                           : constraints.maxWidth;
                       final size = width * 0.4;
-                      return Assets.images.logo.svg(width: size, height: size);
+                      return Image.asset(
+                        "assets/images/rebecca.png",
+                        width: size,
+                        height: size,
+                      );
                     },
                   ),
                   const Gap(16),
@@ -106,24 +114,35 @@ class IntroPage extends HookConsumerWidget with PresLogger {
                     icon: Icons.place_rounded,
                     presentChoice: (value) => value.present(t),
                     onChanged: (val) async {
-                      await ref.read(ConfigOptions.directDnsAddress.notifier).reset();
+                      await ref
+                          .read(ConfigOptions.directDnsAddress.notifier)
+                          .reset();
                     },
                   ),
                   const EnableAnalyticsPrefTile(),
                   const Gap(24),
                   Focus(
                     focusNode: focusNodes[IntroConst.termsAndConditionsKey],
-                    onKeyEvent: (node, event) => _handleKeyEvent(event, IntroConst.termsAndConditionsKey),
+                    onKeyEvent: (node, event) => _handleKeyEvent(
+                      event,
+                      IntroConst.termsAndConditionsKey,
+                    ),
                     child: Text.rich(
                       t.intro.termsAndPolicyCaution(
                         tap: (text) => TextSpan(
                           text: text,
                           style: TextStyle(
-                            color: focusStates[IntroConst.termsAndConditionsKey]!.value ? Colors.green : Colors.blue,
+                            color:
+                                focusStates[IntroConst.termsAndConditionsKey]!
+                                    .value
+                                ? Colors.green
+                                : Colors.blue,
                           ),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () async {
-                              await UriUtils.tryLaunch(Uri.parse(Constants.termsAndConditionsUrl));
+                              await UriUtils.tryLaunch(
+                                Uri.parse(Constants.termsAndConditionsUrl),
+                              );
                             },
                         ),
                       ),
@@ -133,10 +152,13 @@ class IntroPage extends HookConsumerWidget with PresLogger {
                   const Gap(8),
                   Focus(
                     focusNode: focusNodes[IntroConst.privacyPolicyKey],
-                    onKeyEvent: (node, event) => _handleKeyEvent(event, IntroConst.privacyPolicyKey),
+                    onKeyEvent: (node, event) =>
+                        _handleKeyEvent(event, IntroConst.privacyPolicyKey),
                     child: TextButton.icon(
                       onPressed: () async {
-                        await UriUtils.tryLaunch(Uri.parse(Constants.privacyPolicyUrl));
+                        await UriUtils.tryLaunch(
+                          Uri.parse(Constants.privacyPolicyUrl),
+                        );
                       },
                       icon: const Icon(Icons.privacy_tip_outlined),
                       label: Text(t.pages.about.privacyPolicy),
@@ -145,27 +167,36 @@ class IntroPage extends HookConsumerWidget with PresLogger {
                   const Gap(8),
                   Focus(
                     focusNode: focusNodes[IntroConst.githubKey],
-                    onKeyEvent: (node, event) => _handleKeyEvent(event, IntroConst.githubKey),
+                    onKeyEvent: (node, event) =>
+                        _handleKeyEvent(event, IntroConst.githubKey),
                     child: Text.rich(
                       t.intro.info(
                         tap_source: (text) => TextSpan(
                           text: text,
                           style: TextStyle(
-                            color: focusStates[IntroConst.githubKey]!.value ? Colors.green : Colors.blue,
+                            color: focusStates[IntroConst.githubKey]!.value
+                                ? Colors.green
+                                : Colors.blue,
                           ),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () async {
-                              await UriUtils.tryLaunch(Uri.parse(Constants.githubUrl));
+                              await UriUtils.tryLaunch(
+                                Uri.parse(Constants.githubUrl),
+                              );
                             },
                         ),
                         tap_license: (text) => TextSpan(
                           text: text,
                           style: TextStyle(
-                            color: focusStates[IntroConst.githubKey]!.value ? Colors.green : Colors.blue,
+                            color: focusStates[IntroConst.githubKey]!.value
+                                ? Colors.green
+                                : Colors.blue,
                           ),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () async {
-                              await UriUtils.tryLaunch(Uri.parse(Constants.licenseUrl));
+                              await UriUtils.tryLaunch(
+                                Uri.parse(Constants.licenseUrl),
+                              );
                             },
                         ),
                       ),
@@ -175,7 +206,8 @@ class IntroPage extends HookConsumerWidget with PresLogger {
                   // only for managing license node focus
                   Focus(
                     focusNode: focusNodes[IntroConst.licenseKey],
-                    onKeyEvent: (node, event) => _handleKeyEvent(event, IntroConst.licenseKey),
+                    onKeyEvent: (node, event) =>
+                        _handleKeyEvent(event, IntroConst.licenseKey),
                     child: const Gap(88),
                   ),
                 ],
@@ -186,7 +218,11 @@ class IntroPage extends HookConsumerWidget with PresLogger {
       ),
       floatingActionButton: FloatingActionButton.extended(
         icon: isStarting.value
-            ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator())
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(),
+              )
             : const Icon(Icons.rocket_launch),
         label: Text(t.common.start, style: theme.textTheme.titleMedium),
         onPressed: () async {
@@ -195,7 +231,9 @@ class IntroPage extends HookConsumerWidget with PresLogger {
           if (!ref.read(analyticsControllerProvider).requireValue) {
             loggy.info("disabling analytics per user request");
             try {
-              await ref.read(analyticsControllerProvider.notifier).disableAnalytics();
+              await ref
+                  .read(analyticsControllerProvider.notifier)
+                  .disableAnalytics();
             } catch (error, stackTrace) {
               loggy.error("could not disable analytics", error, stackTrace);
             }
@@ -210,30 +248,48 @@ class IntroPage extends HookConsumerWidget with PresLogger {
     try {
       final countryCode = RegionDetector.detect();
       final regionLocale = _getRegionLocale(countryCode);
-      loggy.debug('Timezone Region: ${regionLocale.region} Locale: ${regionLocale.locale}');
+      loggy.debug(
+        'Timezone Region: ${regionLocale.region} Locale: ${regionLocale.locale}',
+      );
       await ref.read(ConfigOptions.region.notifier).update(regionLocale.region);
       await ref.watch(ConfigOptions.directDnsAddress.notifier).reset();
-      await ref.read(localePreferencesProvider.notifier).changeLocale(regionLocale.locale);
+      await ref
+          .read(localePreferencesProvider.notifier)
+          .changeLocale(regionLocale.locale);
       return;
     } catch (e) {
-      loggy.warning('Could not get the local country code based on timezone', e);
+      loggy.warning(
+        'Could not get the local country code based on timezone',
+        e,
+      );
     }
 
     try {
       final DioHttpClient client = DioHttpClient(
         timeout: const Duration(seconds: 2),
-        userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0",
+        userAgent:
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0",
         debug: true,
       );
-      final response = await client.get<Map<String, dynamic>>('https://api.ip.sb/geoip/');
+      final response = await client.get<Map<String, dynamic>>(
+        'https://api.ip.sb/geoip/',
+      );
 
       if (response.statusCode == 200) {
         final jsonData = response.data!;
-        final regionLocale = _getRegionLocale(jsonData['country_code']?.toString() ?? "");
+        final regionLocale = _getRegionLocale(
+          jsonData['country_code']?.toString() ?? "",
+        );
 
-        loggy.debug('Region: ${regionLocale.region} Locale: ${regionLocale.locale}');
-        await ref.read(ConfigOptions.region.notifier).update(regionLocale.region);
-        await ref.read(localePreferencesProvider.notifier).changeLocale(regionLocale.locale);
+        loggy.debug(
+          'Region: ${regionLocale.region} Locale: ${regionLocale.locale}',
+        );
+        await ref
+            .read(ConfigOptions.region.notifier)
+            .update(regionLocale.region);
+        await ref
+            .read(localePreferencesProvider.notifier)
+            .changeLocale(regionLocale.locale);
       } else {
         loggy.warning('Request failed with status: ${response.statusCode}');
       }
@@ -320,7 +376,19 @@ class RegionDetector {
   static bool _matchesRussiaTz(String tz) {
     if (tz.contains('russia') || tz.contains('moscow')) return true;
 
-    const abbrs = {'msk', 'yekt', 'omst', 'krat', 'irkt', 'yakt', 'vlat', 'magt', 'pett', 'sakt', 'sret'};
+    const abbrs = {
+      'msk',
+      'yekt',
+      'omst',
+      'krat',
+      'irkt',
+      'yakt',
+      'vlat',
+      'magt',
+      'pett',
+      'sakt',
+      'sret',
+    };
     if (abbrs.contains(tz)) return true;
 
     const winKeys = [
@@ -347,7 +415,12 @@ class RegionDetector {
     if (tz == 'brt' || tz == 'brst') return true;
     if (tz.contains('brazil') || tz.contains('brasilia')) return true;
 
-    const winKeys = ['e. south america', 'central brazilian', 'tocantins', 'bahia'];
+    const winKeys = [
+      'e. south america',
+      'central brazilian',
+      'tocantins',
+      'bahia',
+    ];
     return winKeys.any(tz.contains);
   }
 
@@ -365,7 +438,19 @@ class RegionDetector {
     return c;
   }
 
-  static const _ruOffsets = {120, 180, 240, 300, 360, 420, 480, 540, 600, 660, 720};
+  static const _ruOffsets = {
+    120,
+    180,
+    240,
+    300,
+    360,
+    420,
+    480,
+    540,
+    600,
+    660,
+    720,
+  };
 
   static const _brOffsets = {-120, -180, -240, -300};
 
@@ -403,7 +488,14 @@ class RegionDetector {
     }
   }
 
-  static const _langToRegion = <String, String>{'fa': 'IR', 'ps': 'AF', 'tr': 'TR', 'zh': 'CN', 'ru': 'RU', 'pt': 'BR'};
+  static const _langToRegion = <String, String>{
+    'fa': 'IR',
+    'ps': 'AF',
+    'tr': 'TR',
+    'zh': 'CN',
+    'ru': 'RU',
+    'pt': 'BR',
+  };
 
   static const _ianaCities = <String, String>{
     'tehran': 'IR',

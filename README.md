@@ -1,3 +1,25 @@
+# Rebecca · ربکا
+
+Version **0.0.1**. A public fork of [Hiddify App](https://github.com/hiddify/hiddify-app), based on commit `c174e46ec523337b81158639307e6dddd118e5df`.
+
+## Rebecca changes
+
+- Rebecca branding and R mark, Android application ID `app.rebecca.vpn`.
+- Black default appearance with monochrome Material colors.
+- Expandable subscription groups show their servers directly underneath, with upstream traffic and expiry information.
+- Selecting a server activates its subscription, starts the existing VPN engine if needed, and sends the selection to the real core. A timeout is an error, never a simulated connection.
+- Original protocol engines, import formats, subscription updates, routing and settings remain upstream implementations.
+
+## Android builds
+
+The **Rebecca Android** GitHub Actions workflow prepares the official pinned Hiddify core, generates sources, analyzes, tests and builds an APK. Download `Rebecca-0.0.1-Android` from a successful workflow run. Until that run succeeds there is no verified APK. Builds use upstream's debug signing fallback when no release keystore is configured; production distribution needs a stable owner-controlled signing key.
+
+## Attribution and license
+
+Based on Hiddify by its original contributors. This project retains the complete [Hiddify Extended GPLv3 license](LICENSE.md), copyright notices and upstream history. Rebecca modifications are distributed under that same license. The original documentation follows for technical reference; upstream download links refer to Hiddify, not Rebecca.
+
+---
+
 <div dir="ltr" align=center>
     
 [**![Lang_farsi](https://user-images.githubusercontent.com/125398461/234186932-52f1fa82-52c6-417f-8b37-08fe9250a55f.png) فارسی**](README_fa.md) / [**Русский 🇷🇺**](README_ru.md) / [**简体中文 🇨🇳**](README_cn.md) / [**日本語 🇯🇵**](README_ja.md) / [**Portugês-BR 🇧🇷**](README_br.md)

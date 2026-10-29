@@ -9,7 +9,6 @@ import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/profile/widget/profile_tile.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_card.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_delay_indicator.dart';
-import 'package:hiddify/gen/assets.gen.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 
@@ -34,14 +33,17 @@ class HomePage extends HookConsumerWidget {
         //     : null,
         title: Row(
           children: [
-            Assets.images.logo.svg(height: 24),
+            Image.asset("assets/images/rebecca.png", height: 24),
             const Gap(8),
             Text.rich(
               TextSpan(
                 children: [
                   TextSpan(text: t.common.appTitle),
                   const TextSpan(text: " "),
-                  const WidgetSpan(child: AppVersionLabel(), alignment: PlaceholderAlignment.middle),
+                  const WidgetSpan(
+                    child: AppVersionLabel(),
+                    alignment: PlaceholderAlignment.middle,
+                  ),
                 ],
               ),
             ),
@@ -65,7 +67,9 @@ class HomePage extends HookConsumerWidget {
             label: t.pages.profiles.add,
             child: IconButton(
               icon: Icon(Icons.add_rounded, color: theme.colorScheme.primary),
-              onPressed: () => ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile(),
+              onPressed: () => ref
+                  .read(bottomSheetsNotifierProvider.notifier)
+                  .showAddProfile(),
             ),
           ),
           const Gap(8),
@@ -98,11 +102,16 @@ class HomePage extends HookConsumerWidget {
                   stops: const [0, .5, 1],
                 ),
           image: DecorationImage(
-            image: const AssetImage('assets/images/world_map.png'), // Replace with your image path
+            image: const AssetImage(
+              'assets/images/world_map.png',
+            ), // Replace with your image path
             fit: BoxFit.cover,
             opacity: 0.09,
             colorFilter: theme.brightness == Brightness.dark
-                ? ColorFilter.mode(Colors.white.withValues(alpha: .15), BlendMode.srcIn) //
+                ? ColorFilter.mode(
+                    Colors.white.withValues(alpha: .15),
+                    BlendMode.srcIn,
+                  ) //
                 : ColorFilter.mode(
                     Colors.grey.withValues(alpha: 1),
                     BlendMode.srcATop,
@@ -128,7 +137,10 @@ class HomePage extends HookConsumerWidget {
                           AsyncData(value: final profile?) => ProfileTile(
                             profile: profile,
                             isMain: true,
-                            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
                           ),
                           _ => const Text(""),
                         },
@@ -141,7 +153,10 @@ class HomePage extends HookConsumerWidget {
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [ConnectionButton(), ActiveProxyDelayIndicator()],
+                                  children: [
+                                    ConnectionButton(),
+                                    ActiveProxyDelayIndicator(),
+                                  ],
                                 ),
                               ),
                               ActiveProxyFooter(),
@@ -181,10 +196,15 @@ class HomePage extends HookConsumerWidget {
                           topLeft: Radius.circular(16),
                           topRight: Radius.circular(16),
                         ),
-                        onTap: () => ref.read(bottomSheetsNotifierProvider.notifier).showQuickSettings(),
+                        onTap: () => ref
+                            .read(bottomSheetsNotifierProvider.notifier)
+                            .showQuickSettings(),
                         child: Container(
                           height: 32,
-                          padding: const EdgeInsetsDirectional.only(start: 16, end: 8),
+                          padding: const EdgeInsetsDirectional.only(
+                            start: 16,
+                            end: 8,
+                          ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -221,12 +241,17 @@ class AppVersionLabel extends HookConsumerWidget {
       label: t.common.version,
       button: false,
       child: Container(
-        decoration: BoxDecoration(color: theme.colorScheme.secondaryContainer, borderRadius: BorderRadius.circular(4)),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.secondaryContainer,
+          borderRadius: BorderRadius.circular(4),
+        ),
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
         child: Text(
           version,
           textDirection: TextDirection.ltr,
-          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSecondaryContainer),
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSecondaryContainer,
+          ),
         ),
       ),
     );

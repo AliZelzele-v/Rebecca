@@ -8,7 +8,7 @@ import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/profile/notifier/profiles_update_notifier.dart';
 import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
-import 'package:hiddify/features/profile/widget/profile_tile.dart';
+import 'package:hiddify/features/profile/widget/profile_group_card.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ProfilesPage extends HookConsumerWidget {
@@ -30,12 +30,15 @@ class ProfilesPage extends HookConsumerWidget {
         title: Text(t.pages.profiles.title),
         actions: [
           IconButton(
-            onPressed: () => ref.read(foregroundProfilesUpdateNotifierProvider.notifier).trigger(),
+            onPressed: () => ref
+                .read(foregroundProfilesUpdateNotifierProvider.notifier)
+                .trigger(),
             icon: const Icon(Icons.sync_rounded),
             tooltip: t.pages.profiles.updateSubscriptions,
           ),
           IconButton(
-            onPressed: () => ref.read(dialogNotifierProvider.notifier).showSortProfiles(),
+            onPressed: () =>
+                ref.read(dialogNotifierProvider.notifier).showSortProfiles(),
             icon: const Icon(Icons.sort_rounded),
             tooltip: t.common.sort,
           ),
@@ -43,7 +46,9 @@ class ProfilesPage extends HookConsumerWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async => await ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile(),
+        onPressed: () async => await ref
+            .read(bottomSheetsNotifierProvider.notifier)
+            .showAddProfile(),
         label: Text(t.pages.profiles.add),
         icon: const Icon(Icons.add_rounded),
       ),
@@ -51,7 +56,10 @@ class ProfilesPage extends HookConsumerWidget {
         data: (data) => ListView.separated(
           padding: const EdgeInsets.all(12).copyWith(bottom: 84),
           separatorBuilder: (context, index) => const Gap(12),
-          itemBuilder: (context, index) => ProfileTile(key: ValueKey(data[index].id), profile: data[index]),
+          itemBuilder: (context, index) => ProfileGroupCard(
+            key: ValueKey(data[index].id),
+            profile: data[index],
+          ),
           itemCount: data.length,
         ),
         loading: () => const Center(child: CircularProgressIndicator()),

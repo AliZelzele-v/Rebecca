@@ -1,6 +1,6 @@
 {
   "common": {
-    "appTitle": "Hiddify",
+    "appTitle": "Rebecca",
     "start": "Start",
     "version": "Version",
     "ok": "OK",
@@ -134,7 +134,7 @@
       }
     },
     "profiles": {
-      "title": "Profiles",
+      "title": "Configurations",
       "add": "Add profile",
       "update": "Update profile",
       "viewAllProfiles": "View all profiles",
@@ -688,7 +688,7 @@
     "adminBgService": {
       "vpnNeedsAdmin": {
         "title": "Administrator permission needed",
-        "msg": "VPN mode needs a one-time administrator permission to install the Hiddify background service. After that, you can connect without another prompt.",
+        "msg": "VPN mode needs a one-time administrator permission to install the Rebecca background service. After that, you can connect without another prompt.",
         "connectWithAdmin": "Connect with admin permission",
         "waitingTitle": "Waiting for administrator permission",
         "waitingMsg": "Allow the administrator prompt to continue. You can stop and try again later.",

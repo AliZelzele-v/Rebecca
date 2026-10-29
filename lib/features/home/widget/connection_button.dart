@@ -19,7 +19,17 @@ import 'package:hiddify/gen/assets.gen.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// What the button shows, one value per look.
-enum _Look { loading, disconnected, connecting, waiting, noProxies, connected, hotReloading, disconnecting, failed }
+enum _Look {
+  loading,
+  disconnected,
+  connecting,
+  waiting,
+  noProxies,
+  connected,
+  hotReloading,
+  disconnecting,
+  failed,
+}
 
 /// One look per status the core reports. The core decides when the tunnel is waiting for a ping
 /// and when it is connected; the button only shows it.
@@ -56,27 +66,37 @@ class ConnectionButton extends HookConsumerWidget {
     // cancels what it was busy with.
     final onTap = switch (status) {
       AsyncData(value: Disconnected()) || AsyncError() => () => _connect(ref),
-      AsyncData(value: Connected() || Waiting() || NoAvailableProxies() || Connecting() || HotReloading()) =>
+      AsyncData(
+        value: Connected() ||
+            Waiting() ||
+            NoAvailableProxies() ||
+            Connecting() ||
+            HotReloading(),
+      ) =>
         () => ref.read(connectionNotifierProvider.notifier).toggleConnection(),
       _ => null,
     };
 
     final failure = switch (status) {
       AsyncError(:final ConnectionFailure error) => error,
-      AsyncValue(valueOrNull: Disconnected(connectionFailure: final failure?)) => failure,
+      AsyncValue(
+        valueOrNull: Disconnected(connectionFailure: final failure?),
+      ) =>
+        failure,
       _ => null,
     };
     // the speeds the button's light follows while connected
     final stats = ref.watch(statsNotifierProvider).valueOrNull;
 
     const buttonTheme = ConnectionButtonTheme.light;
-    final today = DateTime.now();
     return _ConnectionButton(
       look: look,
       onTap: onTap,
       onErrorDetails: failure == null
           ? null
-          : () => ref.read(dialogNotifierProvider.notifier).showCustomAlertFromErr(failure.present(t)),
+          : () => ref
+                .read(dialogNotifierProvider.notifier)
+                .showCustomAlertFromErr(failure.present(t)),
       errorDetailsLabel: t.connection.errorDetails,
       download: stats?.downlink.toInt() ?? 0,
       upload: stats?.uplink.toInt() ?? 0,
@@ -94,17 +114,22 @@ class ConnectionButton extends HookConsumerWidget {
       hint: look == _Look.failed ? t.connection.tapToRetry : null,
       buttonColor: switch (look) {
         _Look.connected => buttonTheme.connectedColor!,
-        _Look.noProxies => const Color.fromARGB(255, 185, 176, 103),
-        _Look.failed => Colors.red,
+        _Look.noProxies => Colors.grey,
+        _Look.failed => Colors.grey,
         // the logo's own blue while the connection is on its way
-        _Look.connecting || _Look.waiting || _Look.hotReloading || _Look.disconnecting => const Color(0xFF455FE9),
+        _Look.connecting ||
+        _Look.waiting ||
+        _Look.hotReloading ||
+        _Look.disconnecting => Colors.grey,
         _ => buttonTheme.idleColor!,
       },
       image: switch (look) {
-        _Look.connected || _Look.noProxies || _Look.hotReloading => Assets.images.connectNorouz,
+        _Look.connected ||
+        _Look.noProxies ||
+        _Look.hotReloading => Assets.images.connectNorouz,
         _ => Assets.images.disconnectNorouz,
       },
-      useImage: today.day >= 19 && today.day <= 23 && today.month == 3,
+      useImage: true,
     );
   }
 
@@ -139,7 +164,10 @@ class ConnectionButton extends HookConsumerWidget {
     useEffect(() {
       final end = until.value;
       if (end == null) return null;
-      final timer = Timer(end.difference(DateTime.now()), () => rebuild.value++);
+      final timer = Timer(
+        end.difference(DateTime.now()),
+        () => rebuild.value++,
+      );
       return timer.cancel;
     }, [until.value]);
     return result;
@@ -227,12 +255,20 @@ class _ConnectionButton extends HookWidget {
     final leftConnected = useRef(-10.0);
     if (change.value.look != eclipseLook || change.value.color != buttonColor) {
       final last = change.value;
-      if (last.look == EclipseLook.connected && eclipseLook != EclipseLook.connected) leftConnected.value = now();
-      final eased = Color.lerp(last.previousColor, last.color, ((now() - last.at) / .45).clamp(0.0, 1.0))!;
+      if (last.look == EclipseLook.connected &&
+          eclipseLook != EclipseLook.connected)
+        leftConnected.value = now();
+      final eased = Color.lerp(
+        last.previousColor,
+        last.color,
+        ((now() - last.at) / .45).clamp(0.0, 1.0),
+      )!;
       // the app opening on a tunnel that is already up, or connected coming back
       // after a moment away, skips the connect animation instead of replaying it
       final skip =
-          previousLook == _Look.loading || (eclipseLook == EclipseLook.connected && now() - leftConnected.value < 2);
+          previousLook == _Look.loading ||
+          (eclipseLook == EclipseLook.connected &&
+              now() - leftConnected.value < 2);
       change.value = (
         look: eclipseLook,
         previous: last.look,
@@ -244,7 +280,10 @@ class _ConnectionButton extends HookWidget {
 
     // the speeds arrive once a second; the light follows them smoothly
     final target = useRef(const EclipseTraffic());
-    target.value = EclipseTraffic(down: EclipseTraffic.level(download), up: EclipseTraffic.level(upload));
+    target.value = EclipseTraffic(
+      down: EclipseTraffic.level(download),
+      up: EclipseTraffic.level(upload),
+    );
     final traffic = useRef(const EclipseTraffic());
 
     // Timer (not useSingleTickerProvider): that hook only allows one createTicker
@@ -258,11 +297,16 @@ class _ConnectionButton extends HookWidget {
         // the light rises with the traffic in about a second, and fades more slowly, so the
         // stats reloading for a moment (coming back from the background) barely dims it
         double follow(double from, double to) =>
-            from + (to - from) * (1 - math.exp(-(at - last) / (to > from ? .8 : 2.5)));
+            from +
+            (to - from) * (1 - math.exp(-(at - last) / (to > from ? .8 : 2.5)));
         final t = traffic.value;
-        traffic.value = EclipseTraffic(down: follow(t.down, target.value.down), up: follow(t.up, target.value.up));
+        traffic.value = EclipseTraffic(
+          down: follow(t.down, target.value.down),
+          up: follow(t.up, target.value.up),
+        );
         last = at;
-        final settled = change.value.look == EclipseLook.idle && at - change.value.at > 1;
+        final settled =
+            change.value.look == EclipseLook.idle && at - change.value.at > 1;
         if (!settled) time.value = at;
       });
       return timer.cancel;
@@ -325,17 +369,28 @@ class _ConnectionButton extends HookWidget {
                   child: InkWell(
                     focusColor: Colors.grey,
                     onTap: onTap,
-                    child: useImage ? Padding(padding: const EdgeInsets.all(36), child: image.image()) : null,
+                    child: useImage
+                        ? Padding(
+                            padding: const EdgeInsets.all(36),
+                            child: Image.asset("assets/images/rebecca.png"),
+                          )
+                        : null,
                   ),
                 ),
                 // the error badge opens what went wrong
                 if (look == _Look.failed && onErrorDetails != null)
                   Positioned.fromRect(
-                    rect: EclipseButtonPainter.errorBadgeRect(const Offset(_size / 2, _size / 2), _size / 2).inflate(8),
+                    rect: EclipseButtonPainter.errorBadgeRect(
+                      const Offset(_size / 2, _size / 2),
+                      _size / 2,
+                    ).inflate(8),
                     child: Semantics(
                       button: true,
                       label: errorDetailsLabel,
-                      child: GestureDetector(behavior: HitTestBehavior.opaque, onTap: onErrorDetails),
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: onErrorDetails,
+                      ),
                     ),
                   ),
               ],
@@ -354,7 +409,9 @@ class _ConnectionButton extends HookWidget {
                     : Text(
                         hint!,
                         key: ValueKey(hint),
-                        style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                       ),
               ),
             ],

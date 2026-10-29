@@ -9,13 +9,17 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/widget/shimmer_skeleton.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
-import 'package:hiddify/gen/assets.gen.dart';
 import 'package:hiddify/hiddifycore/hiddify_core_service_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 /// What another device needs to use a shared proxy by hand. [ip] is null until it's known.
-typedef ProxyCredentials = ({InternetAddress? ip, int port, String username, String password});
+typedef ProxyCredentials = ({
+  InternetAddress? ip,
+  int port,
+  String username,
+  String password,
+});
 
 class QrCodeDialog extends HookConsumerWidget {
   const QrCodeDialog(
@@ -58,18 +62,30 @@ class QrCodeDialog extends HookConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (data != null) _QrCode(data) else _QrPlaceholder(loading: loading),
+              if (data != null)
+                _QrCode(data)
+              else
+                _QrPlaceholder(loading: loading),
               const Gap(16),
-              Text(title, style: theme.textTheme.headlineSmall, textAlign: TextAlign.center),
+              Text(
+                title,
+                style: theme.textTheme.headlineSmall,
+                textAlign: TextAlign.center,
+              ),
               if (subtitle != null) ...[
                 const Gap(4),
                 Text(
                   subtitle!,
-                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ],
-              if (credentials != null) ...[const Gap(16), _CredentialTiles(credentials!)],
+              if (credentials != null) ...[
+                const Gap(16),
+                _CredentialTiles(credentials!),
+              ],
               const Gap(12),
               Align(
                 alignment: AlignmentDirectional.centerEnd,
@@ -105,16 +121,26 @@ class LanSharingQrDialog extends HookConsumerWidget {
     // One lookup per opening. The time limit keeps a core that never answers from leaving the
     // dialog loading forever.
     final lookup = useFuture(
-      useMemoized(() => _findLanIp(ref).timeout(const Duration(seconds: 10), onTimeout: () => null)),
+      useMemoized(
+        () => _findLanIp(
+          ref,
+        ).timeout(const Duration(seconds: 10), onTimeout: () => null),
+      ),
     );
     // Null while the lookup runs. A lookup that ends without an address gets 127.0.0.1, the same
     // answer the core gives when this device has no local network.
-    final ip = lookup.connectionState == ConnectionState.done ? (lookup.data ?? InternetAddress.loopbackIPv4) : null;
+    final ip = lookup.connectionState == ConnectionState.done
+        ? (lookup.data ?? InternetAddress.loopbackIPv4)
+        : null;
     const username = 'hiddify';
     final port = ref.watch(ConfigOptions.mixedPort);
     final password = ref.watch(ConfigOptions.lanSharingPassword);
-    final name = ip?.isLoopback ?? false ? QrCodeDialogConst.localhostProfileName : QrCodeDialogConst.lanProfileName;
-    final link = ip == null ? null : 'socks://$username:$password@${ip.address}:$port#$name';
+    final name = ip?.isLoopback ?? false
+        ? QrCodeDialogConst.localhostProfileName
+        : QrCodeDialogConst.lanProfileName;
+    final link = ip == null
+        ? null
+        : 'socks://$username:$password@${ip.address}:$port#$name';
 
     return QrCodeDialog(
       // The device that scans the code would reach itself at 127.0.0.1, so that gets no code.
@@ -143,13 +169,18 @@ class _QrCode extends StatelessWidget {
   Widget build(BuildContext context) {
     // The code always sits on white so any scanner reads it, so its colors come from the
     // light tones of the theme's primary color, whatever the app's own brightness is.
-    final colors = ColorScheme.fromSeed(seedColor: Theme.of(context).colorScheme.primary);
+    final colors = ColorScheme.fromSeed(
+      seedColor: Theme.of(context).colorScheme.primary,
+    );
 
     return Container(
       width: QrCodeDialogConst.qrBoxSize,
       height: QrCodeDialogConst.qrBoxSize,
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -158,8 +189,14 @@ class _QrCode extends StatelessWidget {
             padding: EdgeInsets.zero,
             // Leaves room for the logo, which covers the middle of the code.
             errorCorrectionLevel: QrErrorCorrectLevel.Q,
-            eyeStyle: QrEyeStyle(eyeShape: QrEyeShape.square, color: colors.primary),
-            dataModuleStyle: QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: colors.onSurface),
+            eyeStyle: QrEyeStyle(
+              eyeShape: QrEyeShape.square,
+              color: colors.primary,
+            ),
+            dataModuleStyle: QrDataModuleStyle(
+              dataModuleShape: QrDataModuleShape.square,
+              color: colors.onSurface,
+            ),
           ),
           Container(
             width: 44,
@@ -170,7 +207,7 @@ class _QrCode extends StatelessWidget {
               borderRadius: BorderRadius.circular(13),
               border: Border.all(color: Colors.white, width: 3),
             ),
-            child: Assets.images.logo.svg(colorFilter: ColorFilter.mode(colors.onPrimary, BlendMode.srcIn)),
+            child: Image.asset("assets/images/rebecca.png"),
           ),
         ],
       ),
@@ -204,13 +241,23 @@ class _QrPlaceholder extends ConsumerWidget {
           : Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.devices_rounded, size: 44, color: theme.colorScheme.onSurfaceVariant),
+                Icon(
+                  Icons.devices_rounded,
+                  size: 44,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
                 const Gap(10),
-                Text(t.dialogs.qrCode.localOnlyTitle, style: theme.textTheme.titleSmall, textAlign: TextAlign.center),
+                Text(
+                  t.dialogs.qrCode.localOnlyTitle,
+                  style: theme.textTheme.titleSmall,
+                  textAlign: TextAlign.center,
+                ),
                 const Gap(4),
                 Text(
                   t.dialogs.qrCode.localOnlyMessage,
-                  style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -239,17 +286,29 @@ class _CredentialTiles extends HookConsumerWidget {
       label: t.dialogs.qrCode.password,
       // Groups of four are easier to read and type by hand; the copy keeps the raw password.
       value: _Value(
-        revealed.value ? RegExp('.{1,4}').allMatches(credentials.password).map((m) => m[0]).join(' ') : '••••••••',
+        revealed.value
+            ? RegExp(
+                '.{1,4}',
+              ).allMatches(credentials.password).map((m) => m[0]).join(' ')
+            : '••••••••',
       ),
       copyText: credentials.password,
       action: IconButton(
-        tooltip: revealed.value ? t.dialogs.qrCode.hidePassword : t.dialogs.qrCode.showPassword,
+        tooltip: revealed.value
+            ? t.dialogs.qrCode.hidePassword
+            : t.dialogs.qrCode.showPassword,
         onPressed: () => revealed.value = !revealed.value,
-        icon: Icon(revealed.value ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+        icon: Icon(
+          revealed.value
+              ? Icons.visibility_off_outlined
+              : Icons.visibility_outlined,
+        ),
         iconSize: 20,
         padding: EdgeInsets.zero,
         constraints: const BoxConstraints.tightFor(width: 40, height: 40),
-        style: IconButton.styleFrom(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+        style: IconButton.styleFrom(
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
       ),
     );
 
@@ -304,7 +363,12 @@ class _CredentialTiles extends HookConsumerWidget {
 
 /// A labelled value that copies [copyText] when tapped. Without [copyText] it isn't tappable.
 class _CopyTile extends HookWidget {
-  const _CopyTile({required this.label, required this.value, required this.copyText, this.action});
+  const _CopyTile({
+    required this.label,
+    required this.value,
+    required this.copyText,
+    this.action,
+  });
 
   final String label;
   final Widget value;
@@ -330,7 +394,12 @@ class _CopyTile extends HookWidget {
               },
         child: Padding(
           // The action's own padding stands in for the end padding.
-          padding: EdgeInsetsDirectional.fromSTEB(12, 6, action == null ? 12 : 2, 6),
+          padding: EdgeInsetsDirectional.fromSTEB(
+            12,
+            6,
+            action == null ? 12 : 2,
+            6,
+          ),
           child: Row(
             children: [
               Expanded(
@@ -340,7 +409,9 @@ class _CopyTile extends HookWidget {
                     _CopiedSwap(
                       label: label,
                       copied: copied.value,
-                      style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     const Gap(2),
                     value,
@@ -389,7 +460,10 @@ class _Value extends StatelessWidget {
     show: () {
       copied.value = true;
       timer.value?.cancel();
-      timer.value = Timer(const Duration(milliseconds: 1400), () => copied.value = false);
+      timer.value = Timer(
+        const Duration(milliseconds: 1400),
+        () => copied.value = false,
+      );
     },
   );
 }
@@ -414,18 +488,28 @@ class _CopiedSwap extends ConsumerWidget {
     final t = ref.watch(translationsProvider).requireValue;
     final theme = Theme.of(context);
     // M3 has no success color role; these greens stay readable on light and dark surfaces.
-    final green = theme.brightness == Brightness.dark ? Colors.green.shade300 : Colors.green.shade800;
+    final green = theme.brightness == Brightness.dark
+        ? Colors.green.shade300
+        : Colors.green.shade800;
     const duration = Duration(milliseconds: 200);
 
     // The hidden text is still laid out to hold the size, so keep it out of hit tests and semantics.
-    Widget slot(Widget child, {required bool visible, required Offset hiddenOffset}) => IgnorePointer(
+    Widget slot(
+      Widget child, {
+      required bool visible,
+      required Offset hiddenOffset,
+    }) => IgnorePointer(
       ignoring: !visible,
       child: ExcludeSemantics(
         excluding: !visible,
         child: AnimatedSlide(
           offset: visible ? Offset.zero : hiddenOffset,
           duration: duration,
-          child: AnimatedOpacity(opacity: visible ? 1 : 0, duration: duration, child: child),
+          child: AnimatedOpacity(
+            opacity: visible ? 1 : 0,
+            duration: duration,
+            child: child,
+          ),
         ),
       ),
     );
@@ -434,7 +518,12 @@ class _CopiedSwap extends ConsumerWidget {
       alignment: alignment,
       children: [
         slot(
-          Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: style),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: style,
+          ),
           visible: !copied,
           hiddenOffset: const Offset(0, -0.4),
         ),
@@ -444,7 +533,9 @@ class _CopiedSwap extends ConsumerWidget {
             child: Text(
               t.dialogs.qrCode.copied,
               maxLines: 1,
-              style: (style ?? DefaultTextStyle.of(context).style).copyWith(color: green),
+              style: (style ?? DefaultTextStyle.of(context).style).copyWith(
+                color: green,
+              ),
             ),
           ),
           visible: copied,

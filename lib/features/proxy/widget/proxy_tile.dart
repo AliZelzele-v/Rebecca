@@ -9,7 +9,12 @@ import 'package:hiddify/utils/platform_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ProxyTile extends HookConsumerWidget with PresLogger {
-  const ProxyTile(this.proxy, {super.key, required this.selected, required this.onTap});
+  const ProxyTile(
+    this.proxy, {
+    super.key,
+    required this.selected,
+    required this.onTap,
+  });
 
   final OutboundInfo proxy;
   final bool selected;
@@ -24,7 +29,9 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
       title: Text(
         proxy.tagDisplay,
         overflow: TextOverflow.ellipsis,
-        style: PlatformUtils.isWindows ? const TextStyle(fontFamily: FontFamily.emoji) : null,
+        style: PlatformUtils.isWindows
+            ? const TextStyle(fontFamily: FontFamily.emoji)
+            : null,
       ),
       leading: IPCountryFlag(
         countryCode: proxy.ipinfo.countryCode,
@@ -50,34 +57,30 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
         children: [
           if (proxy.urlTestDelay != 0)
             Text(
-              ConnectionConst.isValidDelay(proxy.urlTestDelay) ? proxy.urlTestDelay.toString() : "×",
+              ConnectionConst.isValidDelay(proxy.urlTestDelay)
+                  ? proxy.urlTestDelay.toString()
+                  : "×",
               style: TextStyle(color: delayColor(context, proxy.urlTestDelay)),
             ),
 
-          if (proxy.download > 0) Text("⬩", style: Theme.of(context).textTheme.bodySmall),
+          if (proxy.download > 0)
+            Text("⬩", style: Theme.of(context).textTheme.bodySmall),
         ],
       ),
 
       selected: selected,
       selectedTileColor: theme.colorScheme.primaryContainer,
       onTap: onTap,
-      onLongPress: () async => await ref.read(dialogNotifierProvider.notifier).showProxyInfo(outboundInfo: proxy),
+      onLongPress: () async => await ref
+          .read(dialogNotifierProvider.notifier)
+          .showProxyInfo(outboundInfo: proxy),
       horizontalTitleGap: 4,
     );
   }
 
   Color delayColor(BuildContext context, int delay) {
-    if (Theme.of(context).brightness == Brightness.dark) {
-      return switch (delay) {
-        < 800 => Colors.lightGreen,
-        < 1500 => Colors.orange,
-        _ => Colors.redAccent,
-      };
-    }
-    return switch (delay) {
-      < 800 => Colors.green,
-      < 1500 => Colors.deepOrangeAccent,
-      _ => Colors.red,
-    };
+    return Theme.of(
+      context,
+    ).colorScheme.onSurface.withValues(alpha: delay < 800 ? 1 : 0.6);
   }
 }
