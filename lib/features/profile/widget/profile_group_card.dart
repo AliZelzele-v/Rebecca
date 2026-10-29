@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/failures.dart';
+import 'package:hiddify/core/model/constants.dart';
+import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/profile/data/profile_data_providers.dart';
@@ -206,8 +208,37 @@ class _ProfileGroupCardState extends ConsumerState<ProfileGroupCard> {
                                   strokeWidth: 2,
                                 ),
                               )
-                            : const Icon(Icons.chevron_right),
+                            : Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (active && group != null)
+                                    for (final proxy in group.items.where(
+                                      (item) =>
+                                          item.tag == node.tag &&
+                                          item.urlTestDelay != 0,
+                                    ))
+                                      Text(
+                                        ConnectionConst.isValidDelay(
+                                              proxy.urlTestDelay,
+                                            )
+                                            ? '${proxy.urlTestDelay} ms'
+                                            : '×',
+                                      ),
+                                  const Icon(Icons.chevron_right),
+                                ],
+                              ),
                         onTap: busy ? null : () => choose(node),
+                        onLongPress: () {
+                          if (!active || group == null) return;
+                          final matches = group.items.where(
+                            (item) => item.tag == node.tag,
+                          );
+                          if (matches.isNotEmpty) {
+                            ref
+                                .read(dialogNotifierProvider.notifier)
+                                .showProxyInfo(outboundInfo: matches.first);
+                          }
+                        },
                       ),
                     ),
                   ),
