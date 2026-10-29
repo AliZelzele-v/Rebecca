@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/model/failures.dart';
@@ -29,10 +30,13 @@ class RebeccaConnectionStrip extends ConsumerWidget {
         child: Row(children: [
           SizedBox(width: 148, child: FilledButton.icon(
             onPressed: status.isLoading || state is Disconnecting ? null : () async {
+              final dialogs = ref.read(dialogNotifierProvider.notifier);
               if (ref.read(activeProfileProvider).valueOrNull == null) {
+                await dialogs.showNoActiveProfile();
                 await ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile();
                 return;
               }
+              if ((state is Disconnected || status.hasError) && !await dialogs.showExperimentalFeatureNotice()) return;
               try {
                 await ref.read(connectionNotifierProvider.notifier).toggleConnection();
               } catch (error) {

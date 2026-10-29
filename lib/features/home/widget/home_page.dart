@@ -1,3 +1,5 @@
+import 'package:hiddify/features/home/widget/legacy_home_page.dart';
+import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
 import 'package:hiddify/features/home/widget/rebecca_tunnel_dashboard.dart';
 import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +14,7 @@ class HomePage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (ref.watch(isMobileBreakpointProvider) != true) return const LegacyHomePage();
     final theme = Theme.of(context);
     final t = ref.watch(translationsProvider).requireValue;
     // final hasAnyProfile = ref.watch(hasAnyProfileProvider);
