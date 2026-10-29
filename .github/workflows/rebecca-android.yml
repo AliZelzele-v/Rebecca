@@ -107,7 +107,7 @@ jobs:
       - name: Download the previous release for compact updates
         run: |
           mkdir -p out/previous
-          previous=$(gh release list --repo "$GITHUB_REPOSITORY" --exclude-prereleases --exclude-drafts --limit 1 --json tagName --jq '.[0].tagName // empty')
+          previous=$(gh release list --repo "$GITHUB_REPOSITORY" --exclude-pre-releases --exclude-drafts --limit 1 --json tagName --jq '.[0].tagName // empty')
           if [ -n "$previous" ]; then
             gh release download "$previous" --repo "$GITHUB_REPOSITORY" --pattern 'Rebecca-*.apk' --dir out/previous
           fi

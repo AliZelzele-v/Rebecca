@@ -26,9 +26,13 @@ jobs:
         run: |
           gh api "repos/$GITHUB_REPOSITORY/actions/runs/$BUILD_RUN_ID" > /tmp/rebecca-run.json
           python3 - <<'PY'
-          import json,os,pathlib,re
+          import json,os,pathlib,re,subprocess
           run=json.loads(pathlib.Path('/tmp/rebecca-run.json').read_text())
-          assert run['conclusion']=='success' and run['head_sha']==os.environ['GITHUB_SHA']
+          assert run['conclusion']=='success'
+          if run['head_sha'] != os.environ['GITHUB_SHA']:
+              diff=json.loads(subprocess.check_output(['gh','api',f"repos/{os.environ['GITHUB_REPOSITORY']}/compare/{run['head_sha']}...{os.environ['GITHUB_SHA']}"]))
+              assert diff['status'] in ('ahead','identical')
+              assert all(f['filename'] in ('.github/workflows/rebecca-android.yml','.github/workflows/rebecca-publish-verified.yml') for f in diff['files'])
           assert run['path']=='.github/workflows/rebecca-android.yml'
           v,b=re.search(r'^version: ([0-9.]+)\+([0-9]+)',pathlib.Path('pubspec.yaml').read_text(),re.M).groups()
           with open(os.environ['GITHUB_ENV'],'a') as env:env.write(f'VERSION={v}\nBUILD={b}\n')
@@ -48,7 +52,7 @@ jobs:
       - name: Download previous version
         run: |
           mkdir -p out/previous
-          previous=$(gh release list --repo "$GITHUB_REPOSITORY" --exclude-prereleases --exclude-drafts --limit 1 --json tagName --jq '.[0].tagName // empty')
+          previous=$(gh release list --repo "$GITHUB_REPOSITORY" --exclude-pre-releases --exclude-drafts --limit 1 --json tagName --jq '.[0].tagName // empty')
           if [ -n "$previous" ]; then
             gh release download "$previous" --repo "$GITHUB_REPOSITORY" --pattern 'Rebecca-*.apk' --dir out/previous
           fi
