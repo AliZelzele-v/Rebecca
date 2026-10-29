@@ -1,6 +1,7 @@
 {
-  "url": "https://github.com/hiddify/hiddify-core/releases/download/draft/hiddify-lib-android.tar.gz",
-  "sha256": "06d893699034254a41a5bc0881e4b0266e056617d55b0d5256b27e925ff7596e",
-  "asset_updated_at": "2026-10-28T22:16:16Z",
-  "upstream_app_commit": "c174e46ec523337b81158639307e6dddd118e5df"
+  "url": "https://github.com/hiddify/hiddify-core/releases/download/v5.1.0/hiddify-lib-android.tar.gz",
+  "sha256": "41874695cd0ffd4e7f3a1c36877941fbcae1e752e2339238200f2ecf7ffaad0d",
+  "asset_updated_at": "2026-10-28T16:53:38Z",
+  "upstream_app_commit": "c174e46ec523337b81158639307e6dddd118e5df",
+  "reason": "The previously pinned draft artifact was replaced upstream. Pin the compatible official stable v5.1.0 artifact rather than accepting mutable unreviewed draft bytes."
 }

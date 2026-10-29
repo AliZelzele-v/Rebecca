@@ -22,15 +22,8 @@ class ProfilesPage extends HookConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 80,
-        title: Text(t.pages.profiles.title, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+        title: Text(t.pages.profiles.title),
         actions: [
-          IconButton(
-            tooltip: Localizations.localeOf(context).languageCode == "fa" ? "مرتب‌سازی پینگ" : "Sort by ping",
-            isSelected: sortPing,
-            icon: const Icon(Icons.speed),
-            onPressed: () => ref.read(profilePingSortProvider.notifier).state = !sortPing,
-          ),
           IconButton(icon: const Icon(Icons.add), tooltip: t.pages.profiles.add, onPressed: () => ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile()),
           IconButton(
             onPressed: () => ref
@@ -55,7 +48,15 @@ class ProfilesPage extends HookConsumerWidget {
         label: Text(t.pages.profiles.add),
         icon: const Icon(Icons.add_rounded),
       ),
-      body: asyncProfiles.when(
+      body: Column(children: [
+        Padding(padding: const EdgeInsets.symmetric(horizontal: 12), child: Row(children: [
+          Expanded(child: Text(t.pages.profiles.title, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold))),
+          FilterChip(label: Text(Localizations.localeOf(context).languageCode == 'fa' ? 'پینگ' : 'Ping'),
+            avatar: const Icon(Icons.speed, size: 18), selected: sortPing,
+            onSelected: (value) => ref.read(profilePingSortProvider.notifier).state = value),
+        ])),
+        const SizedBox(height: 12),
+        Expanded(child: asyncProfiles.when(
         data: (data) => ListView.separated(
           padding: const EdgeInsets.all(12).copyWith(bottom: 84),
           separatorBuilder: (context, index) => const Gap(12),
@@ -67,7 +68,8 @@ class ProfilesPage extends HookConsumerWidget {
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Text(t.presentShortError(error)),
-      ),
+      )),
+      ]),
     );
   }
 }
