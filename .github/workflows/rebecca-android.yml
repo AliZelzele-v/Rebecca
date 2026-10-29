@@ -53,7 +53,7 @@ jobs:
       - name: Test layout and delta integrity
         run: |
           python3 -m unittest discover -s tests -p 'test_rebecca_*.py'
-          flutter test test/features/profile/rebecca_navigation_test.dart test/features/profile/rebecca_ping_sort_test.dart test/features/profile/profile_nodes_test.dart test/features/profile/rebecca_theme_test.dart test/features/profile/rebecca_header_layout_test.dart test/features/profile/rebecca_delta_test.dart test/features/profile/rebecca_update_plan_test.dart
+          flutter test test/features/profile/rebecca_server_layout_test.dart test/features/profile/rebecca_navigation_test.dart test/features/profile/rebecca_ping_sort_test.dart test/features/profile/profile_nodes_test.dart test/features/profile/rebecca_theme_test.dart test/features/profile/rebecca_header_layout_test.dart test/features/profile/rebecca_delta_test.dart test/features/profile/rebecca_update_plan_test.dart
       - name: Configure owner-controlled signing
         env:
           REBECCA_ANDROID_SIGNING: ${{ secrets.REBECCA_ANDROID_SIGNING }}

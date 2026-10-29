@@ -20,6 +20,8 @@ class RebeccaConnectionStrip extends ConsumerWidget {
     final status = ref.watch(connectionNotifierProvider);
     final state = status.valueOrNull;
     final running = state?.isRunning ?? false;
+    final fa = Localizations.localeOf(context).languageCode == 'fa';
+    final label = status.hasError ? t.connection.failed : state?.present(t) ?? t.connection.connecting;
     final proxy = running ? ref.watch(activeProxyNotifierProvider).valueOrNull : null;
     final delay = proxy?.urlTestDelay;
     return Material(
@@ -44,13 +46,13 @@ class RebeccaConnectionStrip extends ConsumerWidget {
               }
             },
             icon: Icon(running ? Icons.power_settings_new : Icons.power),
-            label: Text(state?.present(t) ?? t.connection.connecting, maxLines: 1, overflow: TextOverflow.ellipsis),
+            label: Text(state is Disconnected ? (fa ? 'اتصال' : 'Connect') : label, maxLines: 1, overflow: TextOverflow.ellipsis),
           )),
           const SizedBox(width: 12),
           Expanded(child: Text(
             running && delay != null && ConnectionConst.isValidDelay(delay)
               ? '${proxy!.tagDisplay} · $delay ms'
-              : state?.present(t) ?? t.connection.connecting,
+              : label,
             maxLines: 2, overflow: TextOverflow.ellipsis,
           )),
         ]),

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:hiddify/features/profile/widget/rebecca_server_content.dart';
 import 'package:hiddify/core/utils/ip_utils.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/failures.dart';
@@ -188,12 +189,8 @@ class _ProfileGroupCardState extends ConsumerState<ProfileGroupCard> {
                     child: Card(
                       margin: EdgeInsets.zero,
                       clipBehavior: Clip.antiAlias,
-                      child: ListTile(
+                      child: RebeccaServerContent(protocol: node.type, selected: active && group?.selected == node.tag, child: ListTile(
                         minVerticalPadding: 14,
-                        leading: RotatedBox(
-                          quarterTurns: 3,
-                          child: Text(node.type.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
-                        ),
                         title: Text(node.tag, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold)),
                         subtitle: node.server.isEmpty ? null : Text(obscureIp(node.server), maxLines: 1, overflow: TextOverflow.ellipsis, textDirection: TextDirection.ltr),
                         selected: active && group?.selected == node.tag,
@@ -238,7 +235,7 @@ class _ProfileGroupCardState extends ConsumerState<ProfileGroupCard> {
                                 .showProxyInfo(outboundInfo: matches.first);
                           }
                         },
-                      ),
+                      )),
                     ),
                   ),
               ],
