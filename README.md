@@ -32,11 +32,12 @@ Rebecca does not create a VPN server or operate an account service. A valid serv
 
 ## Build from source
 
-Use Flutter **3.38.5**, Java **17** and the Android SDK. The core version is pinned in `dependencies.properties`.
+Use Flutter **3.38.5**, Java **17** and the Android SDK. The Android core artifact and its SHA-256 are pinned in `dependencies/rebecca-android-core.json`. Upstream main requires its newer development bridge interfaces; the older stable `core.version` artifact is incompatible with that source. Python 3.12 or newer is required for safe archive extraction.
 
 ```sh
 flutter pub get
-make android-prepare CHANNEL=prod
+make common-prepare
+python3 scripts/prepare_android_core.py
 flutter analyze --no-fatal-infos --no-fatal-warnings
 flutter test test/features/profile/profile_nodes_test.dart test/features/profile/rebecca_theme_test.dart
 flutter build apk --release --target lib/main_prod.dart --build-name 0.0.1 --build-number 1
