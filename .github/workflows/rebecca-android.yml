@@ -31,7 +31,7 @@ jobs:
       - name: Analyze
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
       - name: Test Rebecca configuration parsing
-        run: flutter test test/features/profile/profile_nodes_test.dart
+        run: flutter test test/features/profile/profile_nodes_test.dart test/features/profile/rebecca_theme_test.dart
       - name: Build Android APK
         run: flutter build apk --release --target lib/main_prod.dart --build-name 0.0.1 --build-number 1
       - uses: actions/upload-artifact@v4

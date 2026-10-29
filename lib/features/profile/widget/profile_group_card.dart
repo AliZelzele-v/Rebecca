@@ -66,6 +66,8 @@ class _ProfileGroupCardState extends ConsumerState<ProfileGroupCard> {
         final liveProxies = ref.read(proxiesOverviewNotifierProvider);
         final group = liveProxies.isLoading ? null : liveProxies.value;
         if (ref.read(serviceRunningProvider) &&
+            !(ref.read(connectionNotifierProvider).value?.isSwitching ??
+                true) &&
             group != null &&
             group.items.any((item) => item.tag == node.tag)) {
           await ref
@@ -149,7 +151,9 @@ class _ProfileGroupCardState extends ConsumerState<ProfileGroupCard> {
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
                   child: Column(
                     children: [
-                      RemainingTrafficIndicator(info.ratio.clamp(0.0, 1.0)),
+                      RemainingTrafficIndicator(
+                        info.ratio.clamp(0.0, 1.0).toDouble(),
+                      ),
                       const SizedBox(height: 8),
                       ProfileSubscriptionInfo(info),
                     ],
