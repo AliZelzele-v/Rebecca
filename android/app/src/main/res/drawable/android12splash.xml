@@ -1,1 +1,1 @@
-<bitmap xmlns:android="http://schemas.android.com/apk/res/android" android:src="@drawable/android12splash_rebecca" android:gravity="center" />
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android" android:src="@drawable/android12splash_rebecca" android:gravity="fill" />

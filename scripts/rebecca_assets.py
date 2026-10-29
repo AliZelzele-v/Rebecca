@@ -25,7 +25,7 @@ for name in ['ic_launcher_foreground','android12splash']:
     save(res / 'drawable' / f'{name}_rebecca.png', (432,432))
     (res / 'drawable' / f'{name}.xml').write_text(
         '<bitmap xmlns:android="http://schemas.android.com/apk/res/android" '
-        f'android:src="@drawable/{name}_rebecca" android:gravity="center" />\n')
+        f'android:src="@drawable/{name}_rebecca" android:gravity="fill" />\n')
 for name in ['ic_launcher_splash.png','ic_launcher_foreground.png','ic_launcher_border.png']:
     save(root / 'assets/images/source' / name, (512,512))
 for path in (root / 'assets/images').glob('tray_icon*'):
