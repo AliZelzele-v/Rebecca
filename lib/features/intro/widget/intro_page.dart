@@ -88,6 +88,7 @@ class IntroPage extends HookConsumerWidget with PresLogger {
                       final size = width * 0.4;
                       return Image.asset(
                         "assets/images/rebecca.png",
+                        color: Theme.of(context).colorScheme.onSurface,
                         width: size,
                         height: size,
                       );

@@ -1,0 +1,61 @@
+name: Publish verified Rebecca APKs
+on:
+  workflow_dispatch:
+    inputs:
+      build_run_id:
+        required: true
+        description: Successful Rebecca Android run for this exact commit
+        type: string
+permissions:
+  contents: write
+  actions: read
+jobs:
+  sign-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BUILD_RUN_ID: ${{ inputs.build_run_id }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Verify the source build and version
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$BUILD_RUN_ID" > /tmp/rebecca-run.json
+          python3 - <<'PY'
+          import json,os,pathlib,re
+          run=json.loads(pathlib.Path('/tmp/rebecca-run.json').read_text())
+          assert run['conclusion']=='success' and run['head_sha']==os.environ['GITHUB_SHA']
+          assert run['path']=='.github/workflows/rebecca-android.yml'
+          v,b=re.search(r'^version: ([0-9.]+)\+([0-9]+)',pathlib.Path('pubspec.yaml').read_text(),re.M).groups()
+          with open(os.environ['GITHUB_ENV'],'a') as env:env.write(f'VERSION={v}\nBUILD={b}\n')
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: Rebecca-${{ env.VERSION }}-Android-*
+          merge-multiple: true
+          path: out/source
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.build_run_id }}
+      - name: Sign the verified build with the owner's key
+        env:
+          REBECCA_ANDROID_SIGNING: ${{ secrets.REBECCA_ANDROID_SIGNING }}
+          REBECCA_PUBLISH: 'true'
+        run: python3 scripts/resign_rebecca_apks.py
+      - name: Download previous version
+        run: |
+          mkdir -p out/previous
+          previous=$(gh release list --repo "$GITHUB_REPOSITORY" --exclude-prereleases --exclude-drafts --limit 1 --json tagName --jq '.[0].tagName // empty')
+          if [ -n "$previous" ]; then
+            gh release download "$previous" --repo "$GITHUB_REPOSITORY" --pattern 'Rebecca-*.apk' --dir out/previous
+          fi
+      - name: Generate compact update assets
+        run: python3 scripts/rebecca_release.py --apks out/apks --previous out/previous --output out/release --version "$VERSION" --build "$BUILD" --repository "$GITHUB_REPOSITORY"
+      - name: Publish owner-signed release
+        run: gh release create "v$VERSION" out/release/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "Rebecca $VERSION" --notes-file REBECCA_CHANGELOG.md
+      - name: Remove temporary key material
+        if: always()
+        run: rm -f android/key.properties android/rebecca-release.p12

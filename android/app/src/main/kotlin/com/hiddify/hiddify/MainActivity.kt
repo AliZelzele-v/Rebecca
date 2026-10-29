@@ -45,6 +45,7 @@ class MainActivity : FlutterFragmentActivity(), ServiceConnection.Callback {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         instance = this
+        RebeccaUpdateChannel(this).register(flutterEngine)
         reconnect()
         flutterEngine.plugins.add(MethodHandler(lifecycleScope))
         flutterEngine.plugins.add(PlatformSettingsHandler())

@@ -33,7 +33,11 @@ class HomePage extends HookConsumerWidget {
         //     : null,
         title: Row(
           children: [
-            Image.asset("assets/images/rebecca.png", height: 24),
+            Image.asset(
+              "assets/images/rebecca.png",
+              color: Theme.of(context).colorScheme.onSurface,
+              height: 24,
+            ),
             const Gap(8),
             Text.rich(
               TextSpan(

@@ -8,17 +8,23 @@ class ConnectionButtonTheme extends ThemeExtension<ConnectionButtonTheme> {
 
   static const ConnectionButtonTheme light = ConnectionButtonTheme(
     idleColor: Color(0xFF777777),
-    connectedColor: Color(0xFFFFFFFF),
+    connectedColor: Color(0xFF34D399),
   );
 
   @override
-  ThemeExtension<ConnectionButtonTheme> copyWith({Color? idleColor, Color? connectedColor}) => ConnectionButtonTheme(
+  ThemeExtension<ConnectionButtonTheme> copyWith({
+    Color? idleColor,
+    Color? connectedColor,
+  }) => ConnectionButtonTheme(
     idleColor: idleColor ?? this.idleColor,
     connectedColor: connectedColor ?? this.connectedColor,
   );
 
   @override
-  ThemeExtension<ConnectionButtonTheme> lerp(covariant ThemeExtension<ConnectionButtonTheme>? other, double t) {
+  ThemeExtension<ConnectionButtonTheme> lerp(
+    covariant ThemeExtension<ConnectionButtonTheme>? other,
+    double t,
+  ) {
     if (other is! ConnectionButtonTheme) {
       return this;
     }

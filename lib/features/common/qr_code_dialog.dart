@@ -207,7 +207,10 @@ class _QrCode extends StatelessWidget {
               borderRadius: BorderRadius.circular(13),
               border: Border.all(color: Colors.white, width: 3),
             ),
-            child: Image.asset("assets/images/rebecca.png"),
+            child: Image.asset(
+              "assets/images/rebecca.png",
+              color: colors.onPrimary,
+            ),
           ),
         ],
       ),

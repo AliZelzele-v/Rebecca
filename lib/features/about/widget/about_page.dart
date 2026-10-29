@@ -1,5 +1,6 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:hiddify/features/app_update/rebecca/rebecca_update_gate.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/app_info/app_info_provider.dart';
@@ -60,7 +61,11 @@ class AboutPage extends HookConsumerWidget {
             _ => const Icon(FluentIcons.arrow_sync_24_regular),
           },
           onTap: () async {
-            await ref.read(appUpdateNotifierProvider.notifier).check();
+            if (PlatformUtils.isAndroid) {
+              await checkRebeccaUpdate(context);
+            } else {
+              await ref.read(appUpdateNotifierProvider.notifier).check();
+            }
           },
         ),
       if (PlatformUtils.isDesktop)
@@ -108,6 +113,7 @@ class AboutPage extends HookConsumerWidget {
                 children: [
                   Image.asset(
                     "assets/images/rebecca.png",
+                    color: Theme.of(context).colorScheme.onSurface,
                     width: 64,
                     height: 64,
                   ),

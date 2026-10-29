@@ -15,7 +15,6 @@ import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/home/widget/eclipse_button_painter.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/stats/notifier/stats_notifier.dart';
-import 'package:hiddify/gen/assets.gen.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// What the button shows, one value per look.
@@ -123,12 +122,9 @@ class ConnectionButton extends HookConsumerWidget {
         _Look.disconnecting => Colors.grey,
         _ => buttonTheme.idleColor!,
       },
-      image: switch (look) {
-        _Look.connected ||
-        _Look.noProxies ||
-        _Look.hotReloading => Assets.images.connectNorouz,
-        _ => Assets.images.disconnectNorouz,
-      },
+      image: look == _Look.connected || look == _Look.hotReloading
+          ? 'assets/images/rebecca_green.png'
+          : 'assets/images/rebecca_black.png',
       useImage: true,
     );
   }
@@ -217,7 +213,7 @@ class _ConnectionButton extends HookWidget {
   final String label;
   final String? hint;
   final Color buttonColor;
-  final AssetGenImage image;
+  final String image;
   final bool useImage;
 
   static const _size = 148.0;
@@ -372,7 +368,7 @@ class _ConnectionButton extends HookWidget {
                     child: useImage
                         ? Padding(
                             padding: const EdgeInsets.all(36),
-                            child: Image.asset("assets/images/rebecca.png"),
+                            child: Image.asset(image, fit: BoxFit.contain),
                           )
                         : null,
                   ),

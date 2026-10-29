@@ -3,7 +3,7 @@ from pathlib import Path
 from PIL import Image
 
 root = Path(__file__).resolve().parents[1]
-image = Image.open(root / 'assets/images/rebecca.png').convert('RGBA')
+image = Image.open(root / 'assets/images/source/rebecca_mark.png').convert('RGBA')
 def save(path, size):
     path.parent.mkdir(parents=True, exist_ok=True)
     resized = image.resize(size, Image.Resampling.LANCZOS)

@@ -4,6 +4,11 @@ on:
     branches: [main]
     paths-ignore: ['**.md']
   workflow_dispatch:
+    inputs:
+      publish:
+        type: boolean
+        description: Publish a signed version and small update patches
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -13,6 +18,9 @@ jobs:
   android:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      build: ${{ steps.version.outputs.build }}
     env:
       CHANNEL: dev
     steps:
@@ -27,18 +35,83 @@ jobs:
           flutter-version: '3.38.5'
           channel: stable
           cache: true
+      - name: Version
+        id: version
+        run: |
+          python3 - <<'PY'
+          import os, pathlib, re
+          v, b = re.search(r'^version: ([0-9.]+)\+([0-9]+)', pathlib.Path('pubspec.yaml').read_text(), re.M).groups()
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f'version={v}\nbuild={b}\n')
+          PY
       - name: Prepare upstream core and generated sources
         run: |
           make common-prepare
           python3 scripts/prepare_android_core.py
       - name: Analyze
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
-      - name: Test Rebecca configuration parsing
-        run: flutter test test/features/profile/profile_nodes_test.dart test/features/profile/rebecca_theme_test.dart
-      - name: Build Android APK
-        run: flutter build apk --release --target lib/main_prod.dart --build-name 0.0.1 --build-number 1
+      - name: Test layout and delta integrity
+        run: |
+          python3 -m unittest discover -s tests -p 'test_rebecca_*.py'
+          flutter test test/features/profile/profile_nodes_test.dart test/features/profile/rebecca_theme_test.dart test/features/profile/rebecca_header_layout_test.dart test/features/profile/rebecca_delta_test.dart test/features/profile/rebecca_update_plan_test.dart
+      - name: Configure owner-controlled signing
+        env:
+          REBECCA_ANDROID_SIGNING: ${{ secrets.REBECCA_ANDROID_SIGNING }}
+          REBECCA_PUBLISH: ${{ inputs.publish }}
+        run: python3 scripts/prepare_rebecca_signing.py
+      - name: Build compact APKs for each architecture
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          BUILD: ${{ steps.version.outputs.build }}
+        run: |
+          flutter build apk --release --split-per-abi --target lib/main_prod.dart --build-name "$VERSION" --build-number "$BUILD"
+          mkdir -p out/apks
+          for abi in arm64-v8a armeabi-v7a x86_64; do
+            cp "build/app/outputs/flutter-apk/app-$abi-release.apk" "out/apks/Rebecca-$VERSION-$abi.apk"
+          done
       - uses: actions/upload-artifact@v4
         with:
-          name: Rebecca-0.0.1-Android
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: Rebecca-${{ steps.version.outputs.version }}-Android-arm64-v8a
+          path: out/apks/*-arm64-v8a.apk
           if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Rebecca-${{ steps.version.outputs.version }}-Android-armeabi-v7a
+          path: out/apks/*-armeabi-v7a.apk
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Rebecca-${{ steps.version.outputs.version }}-Android-x86_64
+          path: out/apks/*-x86_64.apk
+          if-no-files-found: error
+      - name: Remove temporary signing files
+        if: always()
+        run: rm -f android/key.properties android/rebecca-release.p12
+  publish:
+    if: github.event_name == 'workflow_dispatch' && inputs.publish
+    needs: android
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      VERSION: ${{ needs.android.outputs.version }}
+      BUILD: ${{ needs.android.outputs.build }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: Rebecca-${{ needs.android.outputs.version }}-Android-*
+          merge-multiple: true
+          path: out/apks
+      - name: Download the previous release for compact updates
+        run: |
+          mkdir -p out/previous
+          previous=$(gh release list --repo "$GITHUB_REPOSITORY" --exclude-prereleases --exclude-drafts --limit 1 --json tagName --jq '.[0].tagName // empty')
+          if [ -n "$previous" ]; then
+            gh release download "$previous" --repo "$GITHUB_REPOSITORY" --pattern 'Rebecca-*.apk' --dir out/previous
+          fi
+      - name: Create verified delta assets and manifest
+        run: python3 scripts/rebecca_release.py --apks out/apks --previous out/previous --output out/release --version "$VERSION" --build "$BUILD" --repository "$GITHUB_REPOSITORY"
+      - name: Publish signed Rebecca update
+        run: gh release create "v$VERSION" out/release/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "Rebecca $VERSION" --notes-file REBECCA_CHANGELOG.md

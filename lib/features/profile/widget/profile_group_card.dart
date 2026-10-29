@@ -13,6 +13,7 @@ import 'package:hiddify/features/profile/model/profile_nodes.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
 import 'package:hiddify/features/profile/widget/profile_tile.dart';
+import 'package:hiddify/features/profile/widget/profile_group_header.dart';
 import 'package:hiddify/features/proxy/data/proxy_data_providers.dart';
 import 'package:hiddify/features/proxy/overview/proxies_overview_notifier.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -108,61 +109,51 @@ class _ProfileGroupCardState extends ConsumerState<ProfileGroupCard> {
       _ => null,
     };
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Card(
-          clipBehavior: Clip.antiAlias,
-          margin: EdgeInsets.zero,
-          child: Column(
-            children: [
-              ListTile(
-                leading: Icon(
-                  profile is RemoteProfileEntity
-                      ? Icons.sync
-                      : Icons.folder_outlined,
-                ),
-                title: Text(
-                  '${profile.name}${nodes.value == null ? "" : " (${nodes.value!.length})"}',
-                ),
-                subtitle: active ? const Icon(Icons.check, size: 16) : null,
-                trailing: Row(
+        ProfileGroupHeader(
+          title:
+              '${profile.name}${nodes.value == null ? "" : " (${nodes.value!.length})"}',
+          icon: profile is RemoteProfileEntity
+              ? Icons.sync
+              : Icons.folder_outlined,
+          active: active,
+          expanded: expanded,
+          onToggle: () => setState(() => expanded = !expanded),
+          action: ProfileActionButton(profile, true),
+          testAction: active && group != null
+              ? IconButton(
+                  tooltip: t.pages.proxies.testDelay,
+                  icon: const Icon(Icons.speed),
+                  onPressed: busy
+                      ? null
+                      : () async {
+                          try {
+                            await ref
+                                .read(proxiesOverviewNotifierProvider.notifier)
+                                .urlTest(group.tag);
+                          } catch (error) {
+                            if (mounted)
+                              ref
+                                  .read(inAppNotificationControllerProvider)
+                                  .showErrorToast(t.presentShortError(error));
+                          }
+                        },
+                )
+              : null,
+          details: info == null
+              ? null
+              : Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (active && group != null)
-                      IconButton(
-                        tooltip: t.pages.proxies.testDelay,
-                        icon: const Icon(Icons.speed),
-                        onPressed: busy
-                            ? null
-                            : () async {
-                                await ref
-                                    .read(
-                                      proxiesOverviewNotifierProvider.notifier,
-                                    )
-                                    .urlTest(group.tag);
-                              },
-                      ),
-                    ProfileActionButton(profile, true),
-                    Icon(expanded ? Icons.expand_less : Icons.expand_more),
+                    RemainingTrafficIndicator(
+                      info.ratio.clamp(0.0, 1.0).toDouble(),
+                    ),
+                    const SizedBox(height: 8),
+                    ProfileSubscriptionInfo(info),
                   ],
                 ),
-                onTap: () => setState(() => expanded = !expanded),
-              ),
-              if (info != null)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
-                  child: Column(
-                    children: [
-                      RemainingTrafficIndicator(
-                        info.ratio.clamp(0.0, 1.0).toDouble(),
-                      ),
-                      const SizedBox(height: 8),
-                      ProfileSubscriptionInfo(info),
-                    ],
-                  ),
-                ),
-            ],
-          ),
         ),
         if (expanded)
           nodes.when(
@@ -184,6 +175,7 @@ class _ProfileGroupCardState extends ConsumerState<ProfileGroupCard> {
               ),
             ),
             data: (items) => Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 for (final node in items)
                   Padding(
