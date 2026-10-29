@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hiddify/features/home/widget/rebecca_connection_strip.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
@@ -120,10 +121,16 @@ class MyAdaptiveLayout extends HookConsumerWidget {
             bottomNavigationBar: isMobileBreakpoint
                 ? FocusScope(
                     node: navScopeNode,
-                    child: NavigationBar(
-                      selectedIndex: navigationShell.currentIndex <= 1 ? navigationShell.currentIndex : 0,
+                    child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                    const RebeccaConnectionStrip(),
+                    NavigationBar(
+                      selectedIndex: navigationShell.currentIndex,
                       destinations: _navDests(_actions(t, showProfilesAction, isMobileBreakpoint)),
                       onDestinationSelected: (index) => _onTap(context, index),
+                    ),
+                    ],
                     ),
                   )
                 : null,
@@ -140,7 +147,7 @@ class MyAdaptiveLayout extends HookConsumerWidget {
 
   List<ShellRouteAction> _actions(Translations t, bool showProfilesAction, bool isMobileBreakpoint) => [
     ShellRouteAction(Icons.power_settings_new_rounded, t.pages.home.title),
-    if (showProfilesAction && !isMobileBreakpoint) ShellRouteAction(Icons.view_list_rounded, t.pages.profiles.title),
+    if (showProfilesAction) ShellRouteAction(Icons.view_list_rounded, t.pages.profiles.title),
     ShellRouteAction(Icons.settings_rounded, t.pages.settings.title),
     if (!isMobileBreakpoint) ShellRouteAction(Icons.description_rounded, t.pages.logs.title),
     if (!isMobileBreakpoint) ShellRouteAction(Icons.info_rounded, t.pages.about.title),

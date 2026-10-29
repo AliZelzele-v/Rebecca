@@ -48,11 +48,11 @@ final loadingConfig = RoutingConfig(
 );
 
 String getNameOfBranch(bool isMobileBreakpoint, bool showProfilesAction, int index) => isMobileBreakpoint
-    ? ['home', 'settings'][index]
+    ? ['home', 'profiles', 'settings'][index]
     : ['home', if (showProfilesAction) 'profiles', 'settings', 'logs', 'about'][index];
 
 int getIndexOfBranch(bool isMobileBreakpoint, bool showProfilesAction, String name) => isMobileBreakpoint
-    ? ['home', 'settings'].indexOf(name)
+    ? ['home', 'profiles', 'settings'].indexOf(name)
     : ['home', if (showProfilesAction) 'profiles', 'settings', 'logs', 'about'].indexOf(name);
 
 @Riverpod(keepAlive: true)
@@ -62,7 +62,7 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
     final isMobileBreakpoint = ref.watch(isMobileBreakpointProvider);
     final bool showProfilesAction;
     if (isMobileBreakpoint == true) {
-      showProfilesAction = false;
+      showProfilesAction = true;
     } else {
       showProfilesAction = ref.watch(hasAnyProfileProvider).value ?? false;
     }
@@ -134,7 +134,7 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
                       pageBuilder: (_, state) =>
                           customTransition(TransitionType.fade, state.pageKey, const ProxiesOverviewPage()),
                     ),
-                    if (isMobileBreakpoint)
+                    if (isMobileBreakpoint && !showProfilesAction)
                       GoRoute(
                         name: 'profileDetails',
                         path: 'profile-details/:id',

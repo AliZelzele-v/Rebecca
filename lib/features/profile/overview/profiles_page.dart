@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
+
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/failures.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
-import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
+
 import 'package:hiddify/features/profile/notifier/profiles_update_notifier.dart';
 import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
 import 'package:hiddify/features/profile/widget/profile_group_card.dart';
@@ -17,18 +17,21 @@ class ProfilesPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
+    final sortPing = ref.watch(profilePingSortProvider);
     final asyncProfiles = ref.watch(profilesNotifierProvider);
-
-    ref.listen(hasAnyProfileProvider, (_, next) {
-      if (next.value == false) {
-        context.goNamed('home');
-      }
-    });
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.pages.profiles.title),
+        toolbarHeight: 80,
+        title: Text(t.pages.profiles.title, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
         actions: [
+          IconButton(
+            tooltip: Localizations.localeOf(context).languageCode == "fa" ? "مرتب‌سازی پینگ" : "Sort by ping",
+            isSelected: sortPing,
+            icon: const Icon(Icons.speed),
+            onPressed: () => ref.read(profilePingSortProvider.notifier).state = !sortPing,
+          ),
+          IconButton(icon: const Icon(Icons.add), tooltip: t.pages.profiles.add, onPressed: () => ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile()),
           IconButton(
             onPressed: () => ref
                 .read(foregroundProfilesUpdateNotifierProvider.notifier)

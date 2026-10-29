@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:hiddify/core/utils/ip_utils.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/failures.dart';
 import 'package:hiddify/core/model/constants.dart';
@@ -17,6 +18,8 @@ import 'package:hiddify/features/profile/widget/profile_group_header.dart';
 import 'package:hiddify/features/proxy/data/proxy_data_providers.dart';
 import 'package:hiddify/features/proxy/overview/proxies_overview_notifier.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+final profilePingSortProvider = StateProvider<bool>((ref) => false);
 
 final profileNodesProvider = FutureProvider.autoDispose
     .family<List<ProfileNode>, ProfileEntity>((ref, profile) async {
@@ -177,18 +180,22 @@ class _ProfileGroupCardState extends ConsumerState<ProfileGroupCard> {
             data: (items) => Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                for (final node in items)
+                for (final node in ref.watch(profilePingSortProvider) && active && group != null
+                    ? sortProfileNodesByPing(items, {for (final item in group.items) item.tag: item.urlTestDelay})
+                    : items)
                   Padding(
                     padding: const EdgeInsets.only(top: 10),
                     child: Card(
                       margin: EdgeInsets.zero,
                       clipBehavior: Clip.antiAlias,
                       child: ListTile(
+                        minVerticalPadding: 14,
                         leading: RotatedBox(
                           quarterTurns: 3,
-                          child: Text(node.type.toUpperCase()),
+                          child: Text(node.type.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
                         ),
-                        title: Text(node.tag, overflow: TextOverflow.ellipsis),
+                        title: Text(node.tag, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: node.server.isEmpty ? null : Text(obscureIp(node.server), maxLines: 1, overflow: TextOverflow.ellipsis, textDirection: TextDirection.ltr),
                         selected: active && group?.selected == node.tag,
                         selectedTileColor: Theme.of(
                           context,
